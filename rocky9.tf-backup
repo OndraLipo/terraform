@@ -1,0 +1,64 @@
+# Defining VM Volume
+resource "libvirt_volume" "rocky9-qcow2" {
+  name = "rocky9.qcow2"
+  pool = "disks" # List storage pools using virsh pool-list
+  #source = "https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2"
+  source = "/kvm/iso/Rocky-9-GenericCloud-9.0-20220830.0.x86_64.qcow2"
+  format = "qcow2"
+}
+
+resource "libvirt_cloudinit_disk" "commoninit" {
+  name = "commoninit.iso"
+  pool = "disks" # List storage pools using virsh pool-list
+  user_data = data.template_file.user_data.rendered
+}
+
+data "template_file" "user_data" {
+  template = file("${path.module}/cloud-init.yaml")
+}
+
+# Define KVM domain to create
+resource "libvirt_domain" "rocky9" {
+  name   = "rocky9"
+  memory = "2048"
+  vcpu   = 2
+
+  cloudinit = libvirt_cloudinit_disk.commoninit.id  
+
+  cpu {
+    mode = "host-passthrough"
+  }
+
+  network_interface {
+    network_name = "default" # List networks with virsh net-list
+    hostname = "rocky9"
+    wait_for_lease = true
+  }
+
+  disk {
+    volume_id = "${libvirt_volume.rocky9-qcow2.id}"
+  }
+
+  console {
+    type = "pty"
+    target_type = "serial"
+    target_port = "0"
+  }
+
+  graphics {
+    type = "vnc"
+    listen_type = "address"
+    autoport = true
+  }
+
+#  provisioner "remote-exec" {
+#    inline = [
+#      "echo 'useradd -m -G wheel ansible && echo ansible:redhat | chpasswd'"
+#    ]
+#  }
+}
+
+# Output Server IP
+output "ip" {
+  value = "${libvirt_domain.rocky9.network_interface.0.addresses.0}"
+}

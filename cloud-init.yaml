@@ -1,0 +1,26 @@
+#cloud-config
+hostname: ${hostname}
+fqdn: ${fqdn}
+
+ssh_pwauth: True
+users:
+  - default
+  - name: ansible
+    gecos: ansible user
+    plain_text_passwd: 'redhat'
+    lock_passwd: false
+    sudo: ALL=(ALL) NOPASSWD:ALL
+
+chpasswd:
+  list: |
+     root:redhat
+  expire: False
+
+write_files:
+- content: |
+    # Ondra Lipo baseline image
+    ol_base_ver=0.1
+  path: /etc/ol_baseline
+
+#runcmd:
+#  - hostnamectl set-hostname terracentos
