@@ -1,20 +1,21 @@
 # variables
-variable "hostname" { default = "dns" }
+variable "hostname" { default = "server" }
 variable "domain" { default = "test.local" }
 variable "memoryMB" { default = 1024*2 }
 variable "cpu" { default = 2 }
 variable "vms" { default = 1 }
 
 # Defining qcow image
-resource "libvirt_volume" "rocky9" {
-  name = "rocky9"
+resource "libvirt_volume" "server" {
+  name = "server"
   #source = "https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2"
-  source = "/kvm/iso/Rocky-9-GenericCloud-9.0-20220830.0.x86_64.qcow2"
+  #source = "/kvm/iso/Rocky-9-GenericCloud-9.0-20220830.0.x86_64.qcow2"
+  source = "/kvm/iso/rhel-baseos-9.1-x86_64-kvm.qcow2"
 }
 
 resource "libvirt_volume" "volume" {
   name           = "${var.hostname}-${count.index}.${var.domain}.qcow2"
-  base_volume_id = libvirt_volume.rocky9.id
+  base_volume_id = libvirt_volume.server.id
   pool           = "disks"
   count          = "${var.vms}"
 }
@@ -36,7 +37,7 @@ data "template_file" "user_data" {
 }
 
 # Define KVM domain to create
-resource "libvirt_domain" "rocky9" {
+resource "libvirt_domain" "server" {
   name   = "${var.hostname}-${count.index}.${var.domain}"
   memory = "${var.memoryMB}"
   vcpu   = "${var.cpu}"
@@ -78,9 +79,9 @@ resource "libvirt_domain" "rocky9" {
 }
 
 # Output Server IP
-output "names" {
-  value = "${libvirt_domain.rocky9.*.name}"
-}
+#output "names" {
+#  value = "${libvirt_domain.server.*.name}"
+#}
 output "ips" {
-  value = "${libvirt_domain.rocky9.*.network_interface.0.addresses.0}"
+  value = "${libvirt_domain.server.*.network_interface}"
 }

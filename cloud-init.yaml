@@ -16,6 +16,10 @@ chpasswd:
      root:redhat
   expire: False
 
+packages:
+ - vim-enhanced
+ - bash-completion
+ 
 write_files:
 - content: |
     # Ondra Lipo baseline image
