@@ -16,6 +16,7 @@ resource "libvirt_volume" "server" {
 }
 
 resource "libvirt_volume" "volume" {
+#   hostname = count.index > 0 ? format("%s-%s", var.name, count.index + 1) : format("%s", var.name)
   name           = "${var.hostname}-${count.index}.${var.domain}.qcow2"
   base_volume_id = libvirt_volume.server.id
   pool           = "disks"

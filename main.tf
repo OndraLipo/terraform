@@ -1,15 +1,46 @@
-terraform {
-  required_providers {
-    libvirt = {
-      source = "dmacvicar/libvirt"
-    }
-  }
+module "rhel9" {
+   source = "./modules/libvirt"
+   hostname     = "rhel9"
+   domain       = "test.local"
+#   running = false
+   cpu    = 2
+   memoryMB  = 2048
+   os = "rhel9"  
+#  iso = "/kvm/iso/rhel-9.2-x86_64-kvm.qcow2"
+   vms = 1
+#   network = "default"
+   rh_subscription = true
 }
 
-provider "libvirt" {
-  uri = "qemu:///system"
+module "rhel8" {
+   source = "./modules/libvirt"
+   hostname     = "rhel8"
+   domain       = "test.local"
+   cpu    = 2
+   memoryMB  = 2048
+   os = "rhel8"  
+   vms = 1
+   rh_subscription = true
 }
 
-#resource "libvirt_domain" "terraform_test" {
-#  name = "terraform_test"
-#}
+module "rhel7" {
+   source = "./modules/libvirt"
+   hostname     = "rhel7"
+   domain       = "test.local"
+   cpu    = 2
+   memoryMB  = 2048
+   os = "rhel7"  
+   vms = 1
+   rh_subscription = true
+}
+
+module "rhel6" {
+   source = "./modules/libvirt"
+   hostname     = "rhel6"
+   domain       = "test.local"
+   cpu    = 2
+   memoryMB  = 2048
+   os = "rhel6"  
+   vms = 1
+   rh_subscription = true
+}
