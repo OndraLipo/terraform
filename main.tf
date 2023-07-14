@@ -2,13 +2,10 @@ module "rhel9" {
    source = "./modules/libvirt"
    hostname     = "rhel9"
    domain       = "test.local"
-#   running = false
    cpu    = 2
    memoryMB  = 2048
    os = "rhel9"  
-#  iso = "/kvm/iso/rhel-9.2-x86_64-kvm.qcow2"
    vms = 1
-#   network = "default"
    rh_subscription = true
 }
 
