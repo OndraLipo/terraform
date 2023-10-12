@@ -19,7 +19,7 @@
        terraform apply
        terraform destroy
 
-6. pass variables
+6. pass variablesexamples/libvirt.tf
 
        terraform apply -var='hostname=somehost' -var='vms=3' -var='iso=""'
 

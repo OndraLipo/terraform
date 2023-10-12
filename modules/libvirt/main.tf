@@ -27,14 +27,18 @@ resource "libvirt_cloudinit_disk" "commoninit" {
 }
 
 data "template_file" "user_data" {
-  template = file("${path.module}/cloud-init.yaml")
-  vars = {
+  template = templatefile("${path.module}/cloud-init.yaml", {
+    hostname = count.index > 0 ? format("%s-%s", var.hostname, count.index + 1) : format("%s", var.hostname),
+    fqdn = count.index > 0 ? format("%s-%s.%s", var.hostname, count.index + 1, var.domain) : format("%s.%s", var.hostname, var.domain),
+    rh_subscription = var.rh_subscription
+  } )
+#  vars = {
     #hostname = "${var.hostname}-${count.index}"
     #fqdn = "${var.hostname}-${count.index}.${var.domain}"  
-    hostname = count.index > 0 ? format("%s-%s", var.hostname, count.index + 1) : format("%s", var.hostname)
-    fqdn = count.index > 0 ? format("%s-%s.%s", var.hostname, count.index + 1, var.domain) : format("%s.%s", var.hostname, var.domain)
-    rh_subscription = var.rh_subscription
-  }
+#    hostname = count.index > 0 ? format("%s-%s", var.hostname, count.index + 1) : format("%s", var.hostname)
+#    fqdn = count.index > 0 ? format("%s-%s.%s", var.hostname, count.index + 1, var.domain) : format("%s.%s", var.hostname, var.domain)
+#    rh_subscription = var.rh_subscription
+#  }
   count = "${var.vms}"
 }
 
@@ -72,6 +76,21 @@ resource "libvirt_domain" "server" {
   }
 
   count = "${var.vms}"
+
+  connection {
+    type     = "ssh"
+    user     = "ansible"
+    password = "redhat"
+    host     = self.network_interface.0.addresses.0
+  }
+
+  provisioner "remote-exec" {
+    when    = destroy
+    on_failure = continue
+    inline = [
+      "sudo subscription-manager unregister",
+    ]
+  }
 
 #  provisioner "remote-exec" {
 #    inline = [

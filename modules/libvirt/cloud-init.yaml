@@ -1,4 +1,7 @@
 #cloud-config
+
+timezone: Europe/Prague
+#locale: en_US
 hostname: ${hostname}
 fqdn: ${fqdn}
 
@@ -19,12 +22,15 @@ chpasswd:
 packages:
  - vim-enhanced
  - bash-completion
+ - git
 
-#rh_subscription:
-#  username: OndraLipo
-#  password: '<pass>'
-#  auto-attach: True
-#  service-level: self-support
+%{ if rh_subscription }
+rh_subscription:
+  activation-key: '<activation-key>'
+  org: <org id>
+  auto-attach: True
+  service-level: self-support
+%{ endif }
 
 write_files:
 - content: |
@@ -32,5 +38,5 @@ write_files:
     ol_base_ver=0.1
   path: /etc/ol_baseline
 
-#runcmd:
-#  - hostnamectl set-hostname terracentos
+runcmd:
+- echo $(date +%Y-%m-%d" "%H:%M:%S" "%Z) >> /etc/ol_baseline

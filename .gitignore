@@ -1,3 +1,5 @@
 .terraform*
 registry.terraform.io
 terraform.tfstate*
+examples
+modules/azure
