@@ -31,6 +31,7 @@ data "template_file" "user_data" {
     hostname = count.index > 0 ? format("%s-%s", var.hostname, count.index + 1) : format("%s", var.hostname),
     fqdn = count.index > 0 ? format("%s-%s.%s", var.hostname, count.index + 1, var.domain) : format("%s.%s", var.hostname, var.domain),
     rh_subscription = var.rh_subscription
+    sles_subscription = var.sles_subscription
   } )
 #  vars = {
     #hostname = "${var.hostname}-${count.index}"
@@ -47,7 +48,7 @@ resource "libvirt_domain" "server" {
   name   = count.index > 0 ? format("%s-%s.%s", var.hostname, count.index + 1, var.domain) : format("%s.%s", var.hostname, var.domain)
   memory = "${var.memoryMB}"
   vcpu   = "${var.cpu}"
-
+  running = "${var.running}"
   cloudinit = libvirt_cloudinit_disk.commoninit[count.index].id
   
   cpu {
@@ -89,6 +90,7 @@ resource "libvirt_domain" "server" {
     on_failure = continue
     inline = [
       "sudo subscription-manager unregister",
+      "sudo SUSEConnect -d",
     ]
   }
 
