@@ -1,0 +1,21 @@
+- name: Unsubscribe from Red Hat or SUSE
+  hosts: all
+  gather_facts: true
+  gather_subset:
+    - '!all'
+    - distribution
+  become: true
+  tasks:
+    - name: Deregister from SUSE Customer Center
+      ansible.builtin.command:
+        cmd: SUSEConnect --de-register
+      register: deregister_result
+      changed_when: "'Successfully de-registered' in deregister_result.stdout"
+      when: "'SLES' in ansible_facts['distribution']"
+
+    - name: Deregister from Red Hat Customer Center
+      ansible.builtin.command:
+        cmd: subscription-manager unregister
+      register: deregister_result
+      changed_when: "'System has been unregistered' in deregister_result.stdout"
+      when: "'RHEL' in ansible_facts['distribution']"

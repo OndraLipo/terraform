@@ -1,0 +1,10 @@
+.terraform*
+registry.terraform.io
+terraform.tfstate*
+examples
+modules/azure
+modules/azsplit
+modules/azurerm
+modules/libvirt-old
+ubuntu
+pxe

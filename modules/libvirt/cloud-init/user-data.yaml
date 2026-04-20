@@ -1,0 +1,48 @@
+#cloud-config
+
+timezone: Europe/Prague
+#locale: en_US
+hostname: ${hostname}
+fqdn: ${fqdn}
+
+ssh_pwauth: True
+users:
+  - default
+  - name: ansible
+    gecos: ansible user
+    plain_text_passwd: 'redhat'
+    lock_passwd: false
+    sudo: ALL=(ALL) NOPASSWD:ALL
+
+chpasswd:
+  list: |
+     root:redhat
+  expire: False
+
+packages:
+ - vim-enhanced
+ - bash-completion
+ - git
+ - qemu-guest-agent
+
+%{ if rh_subscription }
+rh_subscription:
+  activation-key: '<activation-key>'
+  org: 12860233
+  auto-attach: True
+  service-level: self-support
+%{ endif }
+
+write_files:
+- content: |
+    # Ondra Lipo baseline image
+    ol_base_ver=0.1
+  path: /etc/ol_baseline
+
+runcmd:
+- echo $(date +%Y-%m-%d" "%H:%M:%S" "%Z) >> /etc/ol_baseline
+- systemctl enable qemu-guest-agent.service
+- systemctl start --no-block qemu-guest-agent.service
+%{ if sles_subscription }
+- SUSEConnect -e <email@email.com> -r <key>
+%{ endif }
